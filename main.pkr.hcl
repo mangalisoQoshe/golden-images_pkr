@@ -16,7 +16,7 @@ packer {
 # SOURCE
 ##################################################################################
 
-source "qemu" "ubuntu" {
+source "qemu" "server" {
   # ISO configuration
   iso_urls     = "${var.iso_urls}"
   iso_checksum = "${var.iso_checksum_val}"
@@ -67,7 +67,7 @@ source "qemu" "ubuntu" {
 ##################################################################################
 
 build {
-  sources = ["source.qemu.ubuntu"]
+  sources = ["source.qemu.server"]
 
 
   provisioner "ansible" {
