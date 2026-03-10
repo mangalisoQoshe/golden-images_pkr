@@ -5,10 +5,10 @@ packer {
       source  = "github.com/hashicorp/qemu"
     }
 
-    # ansible = {
-    #   version = "~> 1"
-    #   source  = "github.com/hashicorp/ansible"
-    # }
+    ansible = {
+      version = "~> 1"
+      source  = "github.com/hashicorp/ansible"
+    }
   }
 }
 
@@ -75,11 +75,10 @@ build {
   sources = ["source.qemu.server"]
 
 
-  # provisioner "ansible" {
-  #   playbook_file = "./ansible/playbook.yml"
-  #   use_proxy       = false
-  #   extra_arguments = [
-  #     "-vvv"
-  #   ]
-  # }
+  provisioner "ansible" {
+    playbook_file = "./ansible/playbook.yml"
+    # extra_arguments = [
+    #   "-vvv"
+    # ]
+  }
 }

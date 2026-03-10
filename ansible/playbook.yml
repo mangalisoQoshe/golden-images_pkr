@@ -1,0 +1,12 @@
+---
+- name: Configure the godlen image
+  hosts: default
+  become: true
+  pre_tasks:
+    - name: update cache
+      ansible.builtin.apt:
+        update_cache: true
+      changed_when: false
+  
+  roles:
+    - install_docker
