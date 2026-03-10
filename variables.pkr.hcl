@@ -23,7 +23,7 @@ variable "disk_interface" {
 
 variable "headless" {
   type        = bool
-  description = "Display"
+  description = "Display GUI"
   default     = false
 }
 
@@ -56,6 +56,13 @@ variable "net_device" {
 variable "ssh_passwd" {
   type        = string
   description = "The password to use for SSH"
+  sensitive   = true
+}
+
+variable "ssh_private_key" {
+  type        = string
+  description = "The path to the private key used for SSH authentication"
+  default     = "~/.ssh/rpi"
   sensitive   = true
 }
 
