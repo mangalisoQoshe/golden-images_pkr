@@ -212,3 +212,4 @@ __marimo__/
 terraform.tfstate*
 infra/packer/output_ubuntu_24.04.4-server/*
 
+efivars.fd
