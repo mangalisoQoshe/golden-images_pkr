@@ -1,49 +1,56 @@
 # Building an Ubuntu Server Image with Packer
 
-This guide walks through building a golden Ubuntu server image using Packer with autoinstall, and an Ansible provisioner. The resulting image can be used as a base template for Terraform to provision VMs.
+This guide walks through building a golden Ubuntu server image using Packer with QEMU, a Ubuntu cloud image, cloud-init, and an Ansible provisioner. The resulting image can be used as a base template for Terraform to provision VMs.
 
 ---
 
 
-
-### Required Packer plugins
-
-Install the QEMU and Ansible plugins by running:
-
-```bash
-packer init .
-```
 
 ### SSH key
 
-Packer will automatically generate a temporary SSH key for the build. No manual key configuration is required unless you want to use your own key
-
----
+Packer automatically generates a temporary SSH key for the build. No manual key configuration is required unless you want to use your own key.
 
 ## Project Structure
 
 ```
 packer/
-  main.pkr.hcl        # Packer build config
-  http/
-    user-data         # Autoinstall config **update this file**
-    meta-data         # Can be left empty
+  main.pkr.hcl               # Packer build config
+  variables.pkr.hcl          # Variable declarations
+  variables.auto.pkr.hcl     # Variable values 
+  cloud-init/
+    user-data                # Cloud-init config  **update this file**
+    meta-data                # Can be left empty
   ansible/
-    playbook.yml      # Ansible provisioner playbook
+    playbook.yml             # Ansible provisioner playbook
 ```
 
 ---
 
-##  Required: Update user-data Before Building
+## Why Cloud Image Instead of ISO
 
-Before running a build you **must** update the `http/user-data` file with your own credentials. Do not use the default values in production.
+Unlike the live server ISO which runs an installer, the Ubuntu cloud image comes pre-installed. This means:
 
-### 1. Set your username
+- No installer, no autoinstall config, no boot commands needed
+- **Faster builds** — when using the ISO it used to take 10–15 minutes, now it takes ~3 minutes
+- Cloud-init handles first-boot configuration instead of the Subiquity installer
+- The image boots directly from disk
+
+---
+
+
+
+---
+
+##  Required: Update cloud-init/user-data Before Building
+
+Before running a build you **must** update `cloud-init/user-data` with your own credentials. Do not use the default values in production.
+
+### 1. Set your hostname and locale
 
 ```yaml
-identity:
-  hostname: ubuntu-server   # change to your desired hostname
-  username: ubuntu          # change to your desired username
+hostname: your-hostname
+timezone: Africa/Johannesburg
+locale: en_ZA.UTF-8
 ```
 
 ### 2. Set your password
@@ -54,27 +61,39 @@ Generate a hashed password using:
 mkpasswd -m sha-512 yourpassword
 ```
 
-Then paste the output into `user-data`:
+Then paste the output into `user-data` wrapped in **single quotes** to prevent YAML from interpreting the `$` characters:
 
 ```yaml
-identity:
-  password: "$6$your_hashed_password_here"
+passwd: '$6$your_hashed_password_here'
 ```
 
 ### 3. Add your SSH public key
 
+Get your public key:
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+If you don't have an SSH key pair yet, generate one:
+
+```bash
+ssh-keygen -t ed25519
+```
+
+Then add it to `user-data`:
+
 ```yaml
-ssh:
-  install-server: true
-  authorized-keys:
-    - "ssh-rsa AAAA..."    # paste your public key here
-  allow-password-authentication: false
+ssh_authorized_keys:
+  - ssh-ed25519 AAAA...    # paste your public key here
 ```
 
 ---
 
 
+
 ## Building the Image
+
 
 ### 1. Initialise plugins
 
@@ -82,30 +101,28 @@ ssh:
 packer init .
 ```
 
-### 2. Validate the config
+### 3. Validate the config
 
 ```bash
 packer validate .
 ```
 
-### 3. Build the image
+### 4. Build the image
 
 ```bash
 packer build .
 ```
 
 The build will:
-1. Boot the Ubuntu ISO
-2. Run the autoinstall unattended install
-3. Reboot into the installed OS
-4. SSH in and run the Ansible playbook
-5. Clean up cloud-init state
-6. Save the image to `output/ubuntu-server.qcow2`
+1. Boot the pre-installed Ubuntu cloud image directly
+2. Cloud-init reads the seed ISO (`cidata`) and configures the VM on first boot
+3. Packer SSHes in and runs the Ansible playbook
+4. Cleans up cloud-init state
+5. Saves the image to `output_<vm_name>/<vm_name>.qcow2`
 
-For me the build time: 10 - 15 minutes
+Build time is typically 3 minutes (faster than ISO install since there is no installation step).
 
 ---
-
 
 ## Notes
 

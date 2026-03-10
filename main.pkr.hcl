@@ -7,7 +7,7 @@ packer {
 
     ansible = {
       version = "~> 1"
-      source = "github.com/hashicorp/ansible"
+      source  = "github.com/hashicorp/ansible"
     }
   }
 }
@@ -20,6 +20,7 @@ source "qemu" "server" {
   # ISO configuration
   iso_urls     = "${var.iso_urls}"
   iso_checksum = "${var.iso_checksum_val}"
+  disk_image   = true
 
   # VM configuration
   vm_name   = "${var.vm_name}.qcow2"
@@ -42,16 +43,20 @@ source "qemu" "server" {
   format           = "qcow2"
 
   # SSH configuration (for provisioning)
-  ssh_username = "${var.ssh_user}"
-  ssh_password = "${var.ssh_passwd}"
-  ssh_timeout  = "${var.ssh_timeout}"
+  ssh_username         = "${var.ssh_user}"
+  ssh_private_key_file = "${var.ssh_private_key}"
+  # ssh_password         = "${var.ssh_passwd}"
+  ssh_timeout          = "${var.ssh_timeout}"
 
-  # HTTP server for autoinstall files
-  http_directory = "${var.http_dir}"
+
+  # Cloud-init seed ISO for initial configuration. 
+  cd_files = ["cloud-init/meta-data", "cloud-init/user-data"]
+  cd_label = "cidata"
 
   # Shutdown
   shutdown_command = "echo '${var.ssh_passwd}' | sudo -S shutdown -P now"
 
+  communicator = "ssh"
 
   # Boot configuration
   efi_boot          = true
@@ -59,7 +64,7 @@ source "qemu" "server" {
   efi_firmware_vars = "/usr/share/OVMF/OVMF_VARS_4M.fd"
   machine_type      = "q35" # required for EFI
   boot_wait         = "10s"
-  boot_command = "${var.boot_command}"
+
 }
 
 ##################################################################################
@@ -72,9 +77,8 @@ build {
 
   provisioner "ansible" {
     playbook_file = "./ansible/playbook.yml"
-    use_proxy       = false
-    extra_arguments = [
-      "-vvv"
-    ]
+    # extra_arguments = [
+    #   "-vvv"
+    # ]
   }
 }
