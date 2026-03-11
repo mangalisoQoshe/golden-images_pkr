@@ -26,7 +26,7 @@
     dest: /etc/apt/sources.list.d/docker.list
     content: |
       deb [arch={{ arch.stdout }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ codename.stdout }} stable
-  when:  ansible_architecture == "x86_64" 
+
 
 - name: Update cache
   ansible.builtin.apt:
@@ -38,8 +38,7 @@
       - docker-ce 
       - docker-ce-cli 
       - containerd.io
-      - docker-buildx-plugin
-  when:  ansible_architecture == "x86_64" 
+      - docker-buildx-plugin 
 
 - name: Ensure Docker plugin directory exists
   ansible.builtin.file:
@@ -49,10 +48,9 @@
 
 - name: Download Docker Compose for Ubuntu
   ansible.builtin.get_url:
-    url: https://github.com/docker/compose/releases/download/v5.1.0/docker-compose-darwin-x86_64
+    url: https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-darwin-x86_64
     dest: /usr/libexec/docker/cli-plugins/docker-compose
     mode: '0711'
-  when:  ansible_architecture == "x86_64"
 
 - name: Ensure group "docker" exists 
   ansible.builtin.group:

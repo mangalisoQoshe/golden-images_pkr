@@ -34,9 +34,9 @@ source "qemu" "server" {
 
 
   # Network
-  net_device     = "${var.net_device}"
-  disk_interface = "${var.disk_interface}"
-
+  net_device       = "${var.net_device}"
+  disk_interface   = "${var.disk_interface}"
+  disk_compression = true
 
   # Output
   output_directory = "output_${var.vm_name}"
@@ -57,6 +57,7 @@ source "qemu" "server" {
   shutdown_command = "echo '${var.ssh_passwd}' | sudo -S shutdown -P now"
 
   communicator = "ssh"
+  
 
   # Boot configuration
   efi_boot          = true
@@ -77,6 +78,7 @@ build {
 
   provisioner "ansible" {
     playbook_file = "./ansible/playbook.yml"
+    use_proxy = false
     # extra_arguments = [
     #   "-vvv"
     # ]

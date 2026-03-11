@@ -1,12 +1,17 @@
 ---
-- name: Configure the godlen image
+- name: Configure the golden image
   hosts: default
   become: true
+
   pre_tasks:
     - name: update cache
       ansible.builtin.apt:
         update_cache: true
       changed_when: false
-  
+
+  vars_files:
+    - ./vars.yml
+    
   roles:
+    - setup
     - install_docker
