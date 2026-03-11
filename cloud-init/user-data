@@ -5,8 +5,6 @@ timezone: Africa/Johannesburg
 
 locale: en_ZA.UTF-8
 
-keyboard:
-  layout: us
 
 users:
   - name: admin
@@ -19,11 +17,3 @@ users:
     ssh_authorized_keys:
       - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIWNdoXOoMitASBzbG24xlP0AdqZQDv8AJJH/QDuWOnV admin@prod
 
-package_update: true
-
-packages:
-  - qemu-guest-agent
-
-runcmd:
-  - systemctl enable qemu-guest-agent
-  - systemctl start qemu-guest-agent
