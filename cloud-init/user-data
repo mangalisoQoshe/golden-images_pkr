@@ -5,7 +5,6 @@ timezone: Africa/Johannesburg
 
 locale: en_ZA.UTF-8
 
-
 users:
   - name: admin
     primary-group: admin

@@ -13,5 +13,6 @@
     - ./vars.yml
     
   roles:
-    - setup
-    - install_docker
+    - initial_setup
+    # - install_docker
+    - netplan-setup
