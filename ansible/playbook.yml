@@ -15,4 +15,4 @@
   roles:
     - initial_setup
     # - install_docker
-    - netplan-setup
+    - netplan_setup
