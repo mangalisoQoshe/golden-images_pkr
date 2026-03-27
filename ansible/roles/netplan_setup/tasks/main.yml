@@ -6,7 +6,7 @@
 - name: Deploy static netplan config
   ansible.builtin.copy:
     src: 01-netcfg.yml
-    dest: /etc/netplan/01-netcfg.yml
+    dest: /etc/netplan/01-netcfg.yaml
     owner: root
     group: root
     mode: "0600"
