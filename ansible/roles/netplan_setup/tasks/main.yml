@@ -19,5 +19,4 @@
     group: root
     mode: "0644"
 
-- name: Clean cloud-init state
-  command: cloud-init clean --logs
+
